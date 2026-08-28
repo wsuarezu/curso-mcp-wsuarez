@@ -1,0 +1,35 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+
+# --------------- WS
+
+# Secrets — never committed
+.env
+.env.local
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+build/
+dist/
+*.egg-info/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+
+# Local test data
+*.sqlite3
+*.db
