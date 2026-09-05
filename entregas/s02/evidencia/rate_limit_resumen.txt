@@ -1,0 +1,27 @@
+LIMITE DE SOLICITUDES PROVOCADO Y MANEJADO  ·  trigger_rate_limit()
+Modelo: gemini-3.5-flash (tier gratuito: 20 solicitudes/dia)
+17 solicitudes exitosas, y en la 18 se agota la cuota diaria.
+==============================================================================
+[tokens] total=229 (prompt=18, respuesta=2)
+Request 1: 1.
+[503] Error del servidor. Reintentando en 1s...        <- rama ServerError
+[tokens] total=212 (prompt=39, respuesta=8)
+Request 3: 1, 2, 3.
+
+                  [ ... solicitudes 4 a 16, todas exitosas ... ]
+
+[tokens] total=734 (prompt=459, respuesta=58)
+Request 17: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17.
+[503] Error del servidor. Reintentando en 1s...
+[429 RESOURCE_EXHAUSTED] Límite de RPM alcanzado. Reintentando en 2s...
+[429 RESOURCE_EXHAUSTED] Límite de RPM alcanzado. Reintentando en 4s...
+Request 18: Error del cliente (429): You exceeded your current quota, please check your plan and billing details...
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.5-flash
+Please retry in 11.668331779s.. No se reintenta.
+
+                  [ ... solicitudes 19 y 20, mismo 429 ... ]
+==============================================================================
+RESULTADO: el programa NO se cayo. Reintento los 503 y los 429 con backoff
+exponencial (1s, 2s, 4s), devolvio el error como texto al agotar los 3
+intentos y completo las 20 solicitudes. Codigo de salida: 0
+Log completo: entregas/s02/evidencia/rate_limit.txt

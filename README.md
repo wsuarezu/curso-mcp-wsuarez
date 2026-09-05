@@ -103,31 +103,39 @@ que aquí la estrategia no pierde nada.
 
 Ver evidencia en `entregas/s02/evidencia/rate_limit.txt`.
 
-El programa **no se cayó**: `send()` capturó el `ClientError`, reintentó tres
-veces con espera exponencial (1s, 2s, 4s) y, al persistir el error, devolvió el
-mensaje como texto y continuó con las 20 solicitudes hasta terminar con código
-de salida 0.
+Las primeras 17 solicitudes se completaron con normalidad; en la 18 se agotó la
+cuota diaria del modelo y empezaron los 429. El programa **no se cayó**:
+`send()` reintentó tres veces con espera exponencial (1s, 2s, 4s) y, al
+persistir el error, devolvió el mensaje como texto y continuó hasta completar
+las 20 solicitudes, terminando con código de salida 0.
 
 Notas sobre esta evidencia:
 
 - El error se provocó apuntando `trigger_rate_limit()` a `gemini-3.5-flash`
   (constante `RATE_LIMIT_MODEL`), cuyo tier gratuito permite solo 20 solicitudes
-  diarias. Así el 429 llega de inmediato y no se consume la cuota del modelo que
-  usa la conversación calificada.
+  diarias. Con ese tope tan bajo el límite se alcanza dentro de la misma corrida
+  de 20 solicitudes, sin gastar la cuota del modelo que usa la conversación
+  calificada.
 - El log imprime el estado gRPC **`RESOURCE_EXHAUSTED`** junto al código HTTP
   429. El SDK expone ese estado en `exc.status`, distinto de `exc.code` (el
   número 429) y de `exc.message` (el texto de Google).
 - `send()` distingue `ClientError` de `ServerError` en dos bloques `except`
-  separados: reintenta el 429 y también los 5xx, con el mismo backoff
-  exponencial. Esta corrida solo provocó errores 4xx, así que la rama de
-  `ServerError` no aparece en el log; los 5xx dependen del servidor y no son
-  reproducibles a voluntad.
+  separados. El log muestra ambas ramas funcionando: cuatro errores `[503]`
+  reintentados por la rama `ServerError`, y ocho `[429 RESOURCE_EXHAUSTED]`
+  por la de `ClientError`.
+- El contador de tokens de la primera solicitud dice `total=229` pero
+  `prompt=18` y `respuesta=2`. La diferencia son ~209 tokens de razonamiento:
+  `gemini-3.5-flash` es un modelo *thinking* y esos tokens se cobran aunque no
+  aparezcan en la respuesta. Por eso la conversación calificada usa
+  `gemini-3.5-flash-lite`, que no los consume.
 
 ```
-[429 RESOURCE_EXHAUSTED] Límite de RPM alcanzado. Reintentando en 1s...
+[tokens] total=734 (prompt=459, respuesta=58)
+Request 17: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17.
+[503] Error del servidor. Reintentando en 1s...
 [429 RESOURCE_EXHAUSTED] Límite de RPM alcanzado. Reintentando en 2s...
 [429 RESOURCE_EXHAUSTED] Límite de RPM alcanzado. Reintentando en 4s...
-Request 1: Error del cliente (429): You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+Request 18: Error del cliente (429): You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit.
 * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.5-flash
-Please retry in 16.447827802s.. No se reintenta.
+Please retry in 11.668331779s.. No se reintenta.
 ```

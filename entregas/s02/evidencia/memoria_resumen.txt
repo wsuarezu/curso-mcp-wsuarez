@@ -1,0 +1,23 @@
+CONVERSACION DE 8 TURNOS  ·  conversation.py  ·  gemini-3.5-flash-lite
+El dato se entrega en el turno 1 y se recupera en el turno 8.
+'prompt' crece porque el historial se reenvia completo en cada llamada.
+==============================================================================
+T1 | prompt= 25t | USUARIO: Me llamo Alex y mi color favorito es el verde.
+   └─ BOT: ¡Hola, Alex! Encantado de conocerte y de saber que tu color...
+T2 | prompt= 77t | USUARIO: ¿Qué framework de Python vimos en la Clase 1?
+   └─ BOT: Como soy un asistente de IA, no tengo acceso al historial e...
+T3 | prompt=142t | USUARIO: Dame un ejemplo de dato que no cabe en un int.
+   └─ BOT: Un ejemplo en Python es cualquier número entero mayor que $...
+T4 | prompt=294t | USUARIO: ¿Qué hace el comando uv init?
+   └─ BOT: El comando `uv init` (de la herramienta `uv` de Astral para...
+T5 | prompt=377t | USUARIO: Explica en una frase qué es un token.
+   └─ BOT: Un token es una unidad básica de texto (como una palabra o ...
+T6 | prompt=416t | USUARIO: ¿Qué significa que una API sea stateless?
+   └─ BOT: Significa que el servidor no guarda información sobre el es...
+T7 | prompt=459t | USUARIO: ¿Para qué sirve un archivo .env?
+   └─ BOT: Sirve para almacenar variables de entorno sensibles (como c...
+T8 | prompt=496t | USUARIO: ¿Cómo me llamo y cuál es mi color favorito?
+   └─ BOT: Te llamas Alex y tu color favorito es el verde.
+==============================================================================
+RESULTADO: en el turno 8 el modelo recuerda el nombre y el color del turno 1.
+Salida completa sin recortar: entregas/s02/evidencia/memoria.txt
